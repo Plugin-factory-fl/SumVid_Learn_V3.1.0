@@ -1094,13 +1094,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       
       // Generate flashcards
-      const response = await chrome.runtime.sendMessage({
+      const message = {
         action: 'generate-flashcards',
         contentType: contentType,
-        transcript: contentType === 'video' ? contentText : undefined,
-        text: contentType !== 'video' ? contentText : undefined,
         title: contentInfo.title || (contentType === 'video' ? 'unknown video' : contentType === 'pdf' ? 'unknown document' : 'unknown page')
-      });
+      };
+      
+      // Only include the relevant content field (transcript for video, text for others)
+      if (contentType === 'video') {
+        message.transcript = contentText;
+      } else {
+        message.text = contentText;
+      }
+      
+      const response = await chrome.runtime.sendMessage(message);
       
       if (response?.error) {
         alert(response.error);

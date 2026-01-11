@@ -40,8 +40,8 @@ router.post('/register', async (req, res) => {
     // Hash password and create user
     const hashedPassword = await hashPassword(password);
     const result = await query(
-      'INSERT INTO users (email, password_hash, name, created_at) VALUES ($1, $2, $3, NOW()) RETURNING id, email, name, created_at',
-      [email.toLowerCase(), hashedPassword, name || null]
+      'INSERT INTO users (email, password_hash, name, created_at, enhancements_used, enhancements_limit, subscription_status) VALUES ($1, $2, $3, NOW(), 0, 10, $4) RETURNING id, email, name, created_at',
+      [email.toLowerCase(), hashedPassword, name || null, 'freemium']
     );
 
     const user = result.rows[0];

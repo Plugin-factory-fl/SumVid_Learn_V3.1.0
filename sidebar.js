@@ -463,12 +463,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Summary generation (delegated to ContentGenerator)
   async function summarizeText(text, forceRegenerate = false, context = '') {
-    if (contentGenerator) {
-      await contentGenerator.generateSummary(text, forceRegenerate, context, currentVideoInfo, userContext);
-    } else {
+    if (!contentGenerator) {
       console.warn('[Eureka AI] ContentGenerator not initialized, cannot generate summary');
+      return;
     }
+    
+    // Get current video info from contentDisplayManager if available
+    let videoInfo = currentVideoInfo;
+    let contextObj = userContext;
+    
+    if (contentDisplayManager) {
+      const managerVideoInfo = contentDisplayManager.getCurrentVideoInfo();
+      if (managerVideoInfo) {
+        videoInfo = managerVideoInfo;
+      }
+      const managerContext = contentDisplayManager.getUserContext();
+      if (managerContext) {
+        contextObj = managerContext;
+      }
+    }
+    
+    await contentGenerator.generateSummary(text, forceRegenerate, context, videoInfo, contextObj);
   }
+  
+  // Export to window for ButtonHandlers and other modules
+  window.summarizeText = summarizeText;
 
   // Quiz functions (delegated to ContentGenerator)
   function checkQuizAnswers() {
@@ -554,22 +573,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.tabManager = tabManager; // Make globally accessible
       
       // Listen for chat suggestion actions to trigger tab switches
-      window.addEventListener('chat-suggestion-action', (e) => {
+      window.addEventListener('chat-suggestion-action', async (e) => {
         const { action } = e.detail;
         if (action === 'summarize') {
           tabManager.switchTab('summarize');
+          // Wait a bit for tab switch to complete
+          await new Promise(resolve => setTimeout(resolve, 100));
           const summarizeButton = document.getElementById('summarize-button');
           if (summarizeButton && !summarizeButton.disabled) {
             summarizeButton.click();
+          } else if (!summarizeButton) {
+            console.warn('[Eureka AI] Summarize button not found');
+          } else if (summarizeButton.disabled) {
+            console.warn('[Eureka AI] Summarize button is disabled');
           }
         } else if (action === 'flashcards') {
           tabManager.switchTab('flashcards');
+          await new Promise(resolve => setTimeout(resolve, 100));
           const flashcardButton = document.getElementById('generate-flashcard-button');
           if (flashcardButton && !flashcardButton.disabled) {
             flashcardButton.click();
           }
         } else if (action === 'quiz') {
           tabManager.switchTab('quiz');
+          await new Promise(resolve => setTimeout(resolve, 100));
           const quizButton = document.getElementById('make-test-button');
           if (quizButton && !quizButton.disabled) {
             quizButton.click();
@@ -610,6 +637,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.contentDisplayManager = contentDisplayManager; // Make globally accessible
     }
     
+    // Initialize ButtonHandlers (after ContentDisplayManager)
+    if (window.ButtonHandlers && contentDisplayManager) {
+      const buttonHandlers = new window.ButtonHandlers({
+        contentDisplayManager: contentDisplayManager,
+        summaryContainer: summaryContainer,
+        summaryContent: summaryContent,
+        quizContainer: quizContainer,
+        quizContent: quizContent,
+        chatMessages: chatMessages
+      });
+      window.buttonHandlers = buttonHandlers; // Make globally accessible
+      console.log('[sidebar.js] ButtonHandlers initialized');
+    } else {
+      console.warn('[sidebar.js] ButtonHandlers or ContentDisplayManager not available', {
+        hasButtonHandlers: !!window.ButtonHandlers,
+        hasContentDisplayManager: !!contentDisplayManager
+      });
+    }
+    
     // Initialize FlashcardUIController
     if (window.FlashcardUIController) {
       flashcardUIController = new window.FlashcardUIController({
@@ -619,6 +665,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         flashcardEmpty: flashcardEmpty
       });
       window.flashcardUIController = flashcardUIController; // Make globally accessible
+      console.log('[sidebar.js] FlashcardUIController initialized:', {
+        container: !!flashcardContainer,
+        content: !!flashcardContent,
+        list: !!flashcardList,
+        empty: !!flashcardEmpty
+      });
     }
     
     // Initialize NotesUIController
@@ -638,6 +690,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         list: !!notesUIController.notesList,
         empty: !!notesUIController.noteEmpty
       });
+    }
+    
+    // Initialize ClarifyHandler
+    if (window.ClarifyHandler) {
+      const clarifyHandler = new window.ClarifyHandler({
+        chatMessages: chatMessages,
+        questionInput: questionInput
+      });
+      window.clarifyHandler = clarifyHandler; // Make globally accessible
+      console.log('[sidebar.js] ClarifyHandler initialized');
+    } else {
+      console.warn('[sidebar.js] ClarifyHandler module not loaded');
     }
   }
   

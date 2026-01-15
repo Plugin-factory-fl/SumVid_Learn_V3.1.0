@@ -60,6 +60,50 @@
   font-weight: 500;
 }
 
+.flashcard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 12px 0;
+}
+
+.flashcard-nav-btn {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 40px;
+}
+
+.flashcard-nav-btn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.flashcard-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] .flashcard-nav-btn {
+  background: #3d3d3d;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .flashcard-nav-btn:hover:not(:disabled) {
+  background: #4d4d4d;
+  border-color: var(--accent-color);
+}
+
 .flashcard-item {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);

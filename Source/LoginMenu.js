@@ -558,6 +558,19 @@ function registerAccountHandlers() {
   // Handle login form submission
   accountForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    await handleLoginSubmit();
+  });
+
+  // Also handle login button click (since it's type="button")
+  const loginSubmitButton = accountForm.querySelector('.account__submit');
+  if (loginSubmitButton) {
+    loginSubmitButton.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await handleLoginSubmit();
+    });
+  }
+
+  async function handleLoginSubmit() {
     const formData = new FormData(accountForm);
     const email = formData.get('email');
     const password = formData.get('password');
@@ -605,7 +618,7 @@ function registerAccountHandlers() {
         submitButton.textContent = 'Log In';
       }
     }
-  });
+  }
 
   // Handle create account link
   if (createAccountLink && createAccountDialog) {
@@ -813,17 +826,19 @@ function registerAccountHandlers() {
 
   // Password toggle handlers (delegated to handle dynamic content)
   document.addEventListener('click', (e) => {
-    if (e.target.matches('.account__password-toggle')) {
+    const toggleButton = e.target.closest('.account__password-toggle');
+    if (toggleButton) {
       e.preventDefault();
-      const targetId = e.target.getAttribute('data-target');
+      e.stopPropagation();
+      const targetId = toggleButton.getAttribute('data-target');
       const passwordInput = document.getElementById(targetId);
       if (passwordInput) {
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
-          e.target.textContent = 'Hide';
+          toggleButton.textContent = 'Hide';
         } else {
           passwordInput.type = 'password';
-          e.target.textContent = 'Show';
+          toggleButton.textContent = 'Show';
         }
       }
     }

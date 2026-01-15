@@ -183,8 +183,11 @@
         
         // Add full page context from Read button
         if (fullPage) {
-          const truncated = fullPage.substring(0, 8000);
-          contextParts.push(`Full Webpage Content: ${truncated}`);
+          const fullPageText = typeof fullPage === 'string' ? fullPage : (fullPage.text || '');
+          if (fullPageText) {
+            const truncated = fullPageText.substring(0, 8000);
+            contextParts.push(`Full Webpage Content: ${truncated}`);
+          }
         }
         
         return contextParts.join('\n\n');

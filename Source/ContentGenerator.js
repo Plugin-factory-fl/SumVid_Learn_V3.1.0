@@ -203,11 +203,16 @@
               window.showCompletionBadge(this.summaryContainer);
             }
             
+            // Ensure cached summary is visible and expanded
             if (this.summaryContent) {
-              this.summaryContent.classList.add('collapsed');
+              this.summaryContent.style.display = 'block';
+              this.summaryContent.classList.remove('collapsed');
+              this.summaryContent.style.visibility = 'visible';
+              this.summaryContent.style.opacity = '1';
+              // Don't set maxHeight - let CSS flex layout handle it for scrolling
             }
             if (this.summaryHeader) {
-              this.summaryHeader.querySelector('.collapse-button')?.classList.add('collapsed');
+              this.summaryHeader.querySelector('.collapse-button')?.classList.remove('collapsed');
             }
             
             // Load cached chat and quiz
@@ -289,12 +294,16 @@
           if (summarizeButton) summarizeButton.style.display = 'none';
           if (regenerateSummaryButton) regenerateSummaryButton.style.display = 'block';
           
+          // Ensure summary content is visible and expanded after generation
           if (this.summaryContent) {
             this.summaryContent.style.display = 'block';
-            this.summaryContent.classList.add('collapsed');
+            this.summaryContent.classList.remove('collapsed');
+            this.summaryContent.style.visibility = 'visible';
+            this.summaryContent.style.opacity = '1';
+            // Don't set maxHeight - let CSS flex layout handle it for scrolling
           }
           if (this.summaryHeader) {
-            this.summaryHeader.querySelector('.collapse-button')?.classList.add('collapsed');
+            this.summaryHeader.querySelector('.collapse-button')?.classList.remove('collapsed');
           }
         }
       } catch (error) {

@@ -2,27 +2,43 @@
  * Sticky Button Styles for Eureka AI
  */
 
+@keyframes purple-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6),
+                0 0 40px rgba(168, 85, 247, 0.4),
+                0 6px 16px rgba(168, 85, 247, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.8),
+                0 0 60px rgba(168, 85, 247, 0.6),
+                0 6px 16px rgba(168, 85, 247, 0.4);
+  }
+}
+
 .eureka-ai-sticky-button {
   position: fixed;
   z-index: 2147483000;
   width: 55px;
   height: 55px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #A855F7 0%, #9333ea 100%);
+  background: #ffffff;
   border: none;
-  box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.6),
+              0 0 40px rgba(168, 85, 247, 0.4),
+              0 6px 16px rgba(168, 85, 247, 0.3);
   cursor: grab;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  transition: transform 120ms ease, opacity 120ms ease;
+  animation: purple-pulse 2s ease-in-out infinite;
   pointer-events: auto;
 }
 
 .eureka-ai-sticky-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.5);
+  animation: purple-pulse 1.5s ease-in-out infinite;
 }
 
 .eureka-ai-sticky-button:active,

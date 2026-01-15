@@ -65,33 +65,11 @@
         // Force a reflow to ensure CSS applies
         void activeTabContent.offsetHeight;
         
-        // Remove collapsed class and ensure visibility for content sections when tab is active
+        // Remove collapsed class - CSS handles visibility (simplified)
         if (tabName === 'flashcards') {
           const flashcardContent = activeTabContent.querySelector('#flashcard-content');
-          const flashcardContainer = activeTabContent.querySelector('#flashcard-container');
-          const flashcardList = activeTabContent.querySelector('#flashcard-list');
-          const flashcardEmpty = activeTabContent.querySelector('#flashcard-empty');
-          console.log('[TabManager] Flashcard elements:', {
-            content: !!flashcardContent,
-            container: !!flashcardContainer,
-            list: !!flashcardList,
-            empty: !!flashcardEmpty
-          });
           if (flashcardContent) {
             flashcardContent.classList.remove('collapsed');
-            flashcardContent.style.display = 'block';
-            flashcardContent.style.visibility = 'visible';
-            flashcardContent.style.opacity = '1';
-          }
-          if (flashcardContainer) {
-            flashcardContainer.style.display = 'block';
-            flashcardContainer.style.visibility = 'visible';
-          }
-          if (flashcardList) {
-            flashcardList.style.display = 'block';
-          }
-          if (flashcardEmpty) {
-            flashcardEmpty.style.display = 'block';
           }
         } else if (tabName === 'quiz') {
           const quizContent = activeTabContent.querySelector('#quiz-content');
@@ -106,48 +84,15 @@
           });
           if (quizContent) {
             quizContent.classList.remove('collapsed');
-            quizContent.style.display = 'block';
-            quizContent.style.visibility = 'visible';
-            quizContent.style.opacity = '1';
-          }
-          if (quizContainer) {
-            quizContainer.style.display = 'block';
-            quizContainer.style.visibility = 'visible';
-          }
-          if (quizQuestions) {
-            quizQuestions.style.display = 'block';
-          }
-          if (quizEmpty) {
-            quizEmpty.style.display = 'block';
           }
         } else if (tabName === 'notes') {
           const notesContent = activeTabContent.querySelector('#notes-content');
-          const notesContainer = activeTabContent.querySelector('#notes-container');
-          const notesList = activeTabContent.querySelector('#notes-list');
           const noteEmpty = activeTabContent.querySelector('#note-empty');
-          console.log('[TabManager] Notes elements:', {
-            content: !!notesContent,
-            container: !!notesContainer,
-            list: !!notesList,
-            empty: !!noteEmpty
-          });
           if (notesContent) {
             notesContent.classList.remove('collapsed');
-            notesContent.style.display = 'block';
-            notesContent.style.visibility = 'visible';
-            notesContent.style.opacity = '1';
-          }
-          if (notesContainer) {
-            notesContainer.style.display = 'block';
-            notesContainer.style.visibility = 'visible';
-          }
-          if (notesList) {
-            notesList.style.display = 'block';
           }
           if (noteEmpty) {
             noteEmpty.classList.remove('hidden');
-            noteEmpty.style.display = 'block';
-            noteEmpty.style.visibility = 'visible';
           }
         }
       } else {

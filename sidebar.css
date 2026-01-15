@@ -520,7 +520,25 @@ input:checked + .slider:before {
   flex-shrink: 0;
 }
 
-.summary-container,
+.summary-container {
+  margin-top: 8px;
+  margin-bottom: 16px; /* Small margin above footer */
+  text-align: left;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex !important; /* Override inline display: block */
+  flex-direction: column;
+  flex: 1 1 0; /* Grow, shrink, basis 0 */
+  min-height: 0 !important; /* Allow flex shrinking */
+  height: 0; /* Flex trick: height 0 + flex 1 = fill available space */
+}
+
 .flashcard-container,
 .notes-container {
   margin-top: 8px;
@@ -537,7 +555,21 @@ input:checked + .slider:before {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="dark"] .summary-container,
+[data-theme="dark"] .summary-container {
+  background-color: #3d3d3d;
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0 !important;
+  height: 0;
+}
+
 [data-theme="dark"] .flashcard-container,
 [data-theme="dark"] .notes-container,
 [data-theme="dark"] .quiz-container {
@@ -578,7 +610,18 @@ input:checked + .slider:before {
   border-color: rgba(168, 85, 247, 0.2);
 }
 
-.summary-header,
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  width: 100%;
+  cursor: pointer;
+  min-height: 24px;
+  background: transparent;
+  flex-shrink: 0; /* Don't shrink header */
+}
+
 .flashcard-header,
 .quiz-header,
 .notes-header {
@@ -714,8 +757,13 @@ input:checked + .slider:before {
   line-height: 1.6;
   color: var(--text-primary);
   transition: max-height 0.3s ease-out;
-  overflow-y: auto;
-  max-height: 400px;
+  overflow-y: auto !important; /* Force scrollbar */
+  overflow-x: hidden !important;
+  flex: 1 1 0; /* Grow, shrink, basis 0 */
+  min-height: 0 !important; /* Allow flex shrinking - critical for scrolling */
+  max-height: none !important; /* Override inline styles - use flex instead */
+  height: 0; /* Flex trick: height 0 + flex 1 = fill available space */
+  position: relative; /* Ensure scrollbar positioning */
 }
 
 .summary-text {
@@ -878,6 +926,7 @@ input:checked + .slider:before {
 }
 
 /* Override collapsed state when tab is active */
+#tab-summarize.active .summary-content.collapsed,
 #tab-flashcards.active .flashcard-content.collapsed,
 #tab-quiz.active .quiz-content.collapsed,
 #tab-notes.active .notes-content.collapsed {
@@ -1291,20 +1340,17 @@ input:checked + .slider:before {
 }
 
 .chat-container {
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   gap: 16px;
   height: 100%;
   flex: 1;
   min-height: 0;
-  padding-bottom: 3px; /* Space for glow at bottom - 3px margin to input bar */
-  padding-left: 8px; /* Space for glow on sides */
-  padding-right: 8px; /* Space for glow on sides */
-  padding-top: 8px; /* Space for glow on top */
+  padding: 8px 8px 0 8px !important; /* Zero bottom padding - input container sits at bottom */
   animation: chat-pulse 2s ease-in-out infinite;
   border-radius: 8px;
   border: 1px solid transparent;
-  overflow: visible; /* Allow glow to extend beyond container */
+  overflow: visible;
 }
 
 .chat-messages {
@@ -1433,14 +1479,14 @@ input:checked + .slider:before {
 }
 
 .chat-input-container {
-  display: flex;
+  display: flex !important;
   gap: 8px;
-  margin-top: auto; /* Push to bottom */
-  margin-bottom: 0; /* No margin - padding-bottom of chat-container handles spacing */
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
   position: relative;
   z-index: 10;
   background: var(--bg-primary);
-  padding: 8px 0;
+  padding: 0 !important;
   flex-shrink: 0;
 }
 
@@ -1655,16 +1701,12 @@ input:checked + .slider:before {
   flex: 1;
   min-height: 0;
   height: 100%;
-  padding: 12px 16px;
+  padding: 12px 16px 3px 16px; /* 3px bottom padding to match chat-container */
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--bg-primary);
   border-radius: 8px;
   margin: 8px 0;
-  transform: none !important; /* Prevent any size/transform changes */
-  width: 100% !important; /* Prevent width changes */
-  min-width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
+  box-sizing: border-box;
 }
 
 [data-theme="dark"] .panel__section--chat {
@@ -1737,7 +1779,7 @@ input:checked + .slider:before {
   flex-direction: column;
   gap: 8px;
   position: fixed;
-  bottom: 0;
+  bottom: 56px; /* Above tab-navigation (56px height: 8px top padding + ~40px button + 8px bottom padding) */
   left: 0;
   right: 0;
   background: var(--bg-primary);
@@ -2003,7 +2045,7 @@ input:checked + .slider:before {
   border-top: 2px solid var(--border-color);
   background: var(--bg-primary);
   position: fixed;
-  bottom: 80px; /* Above pro-section (80px) */
+  bottom: 0; /* At the very bottom of the sidebar window */
   left: 0;
   right: 0;
   z-index: 150;
@@ -2052,7 +2094,7 @@ input:checked + .slider:before {
 .tab-content {
   display: none !important;
   width: 100%;
-  padding-bottom: 200px; /* Space for tab footer (80px) and pro-section (100px) + 20px gap */
+  padding: 16px;
 }
 
 .tab-content.active {
@@ -2062,12 +2104,12 @@ input:checked + .slider:before {
   min-height: 0;
   width: 100%;
   overflow-y: auto;
-  padding-bottom: 200px; /* Space for tab footer (80px) and pro-section (100px) + 20px gap */
+  padding: 16px;
 }
 
 #tab-chat.active {
   display: flex !important;
-  padding-bottom: 88px; /* 8px above tab footer (80px) - accounts for glow padding */
+  padding-bottom: 64px; /* 8px above tab-navigation (56px) - accounts for glow padding */
   overflow: visible; /* Allow glow to extend */
 }
 
@@ -2123,7 +2165,15 @@ dialog[open] > * {
 }
 
 /* Ensure other tab contents are visible when active */
-#tab-summarize.active,
+#tab-summarize.active {
+  display: flex !important;
+  flex-direction: column;
+  overflow: hidden; /* Prevent outer scrolling - card handles it */
+  padding: 16px;
+  min-height: 0; /* Allow flex shrinking */
+  flex: 1; /* Fill available space */
+}
+
 #tab-flashcards.active,
 #tab-quiz.active,
 #tab-notes.active {
@@ -2131,12 +2181,33 @@ dialog[open] > * {
   flex-direction: column;
   overflow-y: auto;
   padding: 16px;
-  padding-bottom: 200px; /* Space for tab footer and pro-section */
 }
 
 /* Make sure content sections are visible when their tab is active */
-#tab-flashcards.active #flashcard-container,
-#tab-flashcards.active #flashcard-content,
+/* Force flashcard visibility when tab is active */
+#tab-flashcards.active #flashcard-container {
+  display: block !important;
+  visibility: visible !important;
+}
+
+#tab-flashcards.active #flashcard-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-height: none !important;
+}
+
+#tab-flashcards.active #flashcard-list {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#tab-flashcards.active #flashcard-empty:not(.hidden) {
+  display: block !important;
+  visibility: visible !important;
+}
+
 #tab-quiz.active #quiz-container,
 #tab-quiz.active #quiz-content,
 #tab-notes.active #notes-container,
@@ -2151,15 +2222,22 @@ dialog[open] > * {
   visibility: visible !important;
 }
 
-#tab-flashcards.active #flashcard-empty,
-#tab-quiz.active #quiz-empty,
-#tab-notes.active #note-empty {
+/* Simplified: Consolidated visibility rules for active tabs */
+#tab-flashcards.active #flashcard-list:not(.hidden),
+#tab-quiz.active #quiz-questions-container:not(.hidden),
+#tab-notes.active #notes-list:not(.hidden) {
   display: block !important;
   visibility: visible !important;
-  opacity: 1 !important;
 }
 
-/* Ensure empty states are visible by default when tab is active */
+#tab-flashcards.active #flashcard-empty:not(.hidden),
+#tab-quiz.active #quiz-empty:not(.hidden),
+#tab-notes.active #note-empty:not(.hidden) {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Empty state base styles */
 .flashcard-empty,
 .quiz-empty,
 .note-empty {
@@ -2167,12 +2245,6 @@ dialog[open] > * {
   padding: 20px;
   text-align: center;
   color: var(--text-secondary);
-}
-
-#tab-flashcards.active .flashcard-empty,
-#tab-quiz.active .quiz-empty,
-#tab-notes.active .note-empty {
-  display: block !important;
 }
 
 /* Remove collapsed class when tab is active */
@@ -2280,6 +2352,10 @@ dialog[open] > * {
 
 .file-upload-status-container {
   margin-top: 8px;
+  margin-bottom: 0;
+  padding: 0;
+  min-height: 0;
+  height: auto;
 }
 
 .file-upload-status {

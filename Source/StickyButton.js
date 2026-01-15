@@ -354,7 +354,7 @@
 
   let toastInterval = null;
   let currentToastMessageIndex = 0;
-  const toastMessages = ['Eureka!', 'Click to open sidebar'];
+  const toastMessages = ['Eureka!', 'Click to open sidebar', 'Click and drag me to move me anywhere!'];
 
   /**
    * Starts periodic toast notifications

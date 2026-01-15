@@ -122,38 +122,82 @@
   
     async renderFlashcards() {
       console.log('[FlashcardUIController] renderFlashcards called');
-      console.log('[FlashcardUIController] SumVidFlashcardMaker available:', !!window.SumVidFlashcardMaker);
-      console.log('[FlashcardUIController] flashcardList:', !!this.flashcardList, 'flashcardEmpty:', !!this.flashcardEmpty);
+      
+      // ALWAYS re-find elements to ensure they exist
+      this.flashcardList = document.getElementById('flashcard-list');
+      this.flashcardEmpty = document.getElementById('flashcard-empty');
+      this.flashcardContent = document.getElementById('flashcard-content');
+      this.flashcardContainer = document.getElementById('flashcard-container');
+      
+      console.log('[FlashcardUIController] Elements found:', {
+        list: !!this.flashcardList,
+        empty: !!this.flashcardEmpty,
+        content: !!this.flashcardContent,
+        container: !!this.flashcardContainer
+      });
       
       if (!window.SumVidFlashcardMaker) {
-        console.warn('[FlashcardUIController] SumVidFlashcardMaker not available');
+        console.error('[FlashcardUIController] SumVidFlashcardMaker not available');
+        if (this.flashcardEmpty) {
+          this.flashcardEmpty.classList.remove('hidden');
+          this.flashcardEmpty.style.display = 'block';
+        }
+        if (this.flashcardList) {
+          this.flashcardList.style.display = 'none';
+        }
         return;
       }
       
       if (!this.flashcardList || !this.flashcardEmpty) {
-        console.warn('[FlashcardUIController] Missing flashcardList or flashcardEmpty elements');
+        console.error('[FlashcardUIController] Missing required elements');
         return;
       }
       
+      // Load flashcards
       await window.SumVidFlashcardMaker.loadFlashcards();
       const sets = window.SumVidFlashcardMaker.getAllFlashcards();
       console.log('[FlashcardUIController] Loaded flashcard sets:', sets.length);
       
+      // Get current content title
       const stored = await chrome.storage.local.get(['currentContentInfo', 'currentVideoInfo']);
       const contentInfo = stored.currentContentInfo || stored.currentVideoInfo;
       const currentTitle = contentInfo?.title || '';
       console.log('[FlashcardUIController] Current content title:', currentTitle);
       
-      const relevantSets = currentTitle 
-        ? sets.filter(set => set.title.includes(currentTitle))
-        : sets.slice(-1);
+      // ALWAYS show the most recent set if sets exist
+      let relevantSets = [];
+      if (sets.length > 0) {
+        // Try to find matching sets first if we have a title
+        if (currentTitle) {
+          relevantSets = sets.filter(set => {
+            const setTitleLower = (set.title || '').toLowerCase();
+            const currentTitleLower = currentTitle.toLowerCase();
+            return setTitleLower.includes(currentTitleLower) || currentTitleLower.includes(setTitleLower);
+          });
+        }
+        // ALWAYS show most recent set if no matches
+        if (relevantSets.length === 0) {
+          console.log('[FlashcardUIController] No matching sets, using most recent set');
+          relevantSets = [sets[sets.length - 1]];
+        }
+      }
       
-      console.log('[FlashcardUIController] Relevant sets:', relevantSets.length);
+      console.log('[FlashcardUIController] Relevant sets:', relevantSets.length, 'Total sets:', sets.length);
+      
+      // Force content visibility
+      if (this.flashcardContent) {
+        this.flashcardContent.classList.remove('collapsed');
+        this.flashcardContent.style.display = 'block';
+      }
+      if (this.flashcardContainer) {
+        this.flashcardContainer.style.display = 'block';
+      }
       
       if (relevantSets.length === 0) {
-        console.log('[FlashcardUIController] No relevant sets, showing empty state');
+        console.log('[FlashcardUIController] No sets available, showing empty state');
         if (this.flashcardList) {
           this.flashcardList.innerHTML = '';
+          this.flashcardList.style.display = 'none';
         }
         if (this.flashcardEmpty) {
           this.flashcardEmpty.classList.remove('hidden');
@@ -162,16 +206,26 @@
         this.currentFlashcardSet = null;
         this.currentFlashcardIndex = 0;
       } else {
-        console.log('[FlashcardUIController] Found relevant sets, rendering slideshow');
+        console.log('[FlashcardUIController] Rendering set:', relevantSets[0].title);
         if (this.flashcardEmpty) {
           this.flashcardEmpty.classList.add('hidden');
           this.flashcardEmpty.style.display = 'none';
+        }
+        if (this.flashcardList) {
+          this.flashcardList.classList.remove('hidden');
+          this.flashcardList.style.display = 'block';
+          this.flashcardList.style.visibility = 'visible';
         }
         
         this.currentFlashcardSet = relevantSets[0];
         this.currentFlashcardIndex = 0;
         
-        this.renderFlashcardSlideshow();
+        console.log('[FlashcardUIController] About to render slideshow, set has', this.currentFlashcardSet.cards?.length || 0, 'cards');
+        
+        // Force render immediately
+        setTimeout(() => {
+          this.renderFlashcardSlideshow();
+        }, 0);
       }
     }
   
@@ -185,53 +239,69 @@
         return;
       }
       
-      // Ensure flashcard list is visible
-      if (this.flashcardList) {
-        this.flashcardList.style.display = 'block';
-        this.flashcardList.style.visibility = 'visible';
-      }
+      // Force visibility
+      this.flashcardList.classList.remove('hidden');
+      this.flashcardList.style.display = 'block';
+      this.flashcardList.style.visibility = 'visible';
       
-      const cards = this.currentFlashcardSet.cards.slice(0, 10);
-      console.log('[FlashcardUIController] Cards to display:', cards.length);
+      const cards = this.currentFlashcardSet.cards || [];
+      const cardsToShow = cards.slice(0, 10);
+      console.log('[FlashcardUIController] Cards to display:', cardsToShow.length, 'out of', cards.length);
       
-      if (cards.length === 0) {
+      if (cardsToShow.length === 0) {
         console.log('[FlashcardUIController] No cards, showing empty message');
-        this.flashcardList.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-secondary);">No flashcards available.</p>';
+        this.flashcardList.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-secondary);">No flashcards available in this set.</p>';
         return;
       }
       
-      const currentCard = cards[this.currentFlashcardIndex];
+      const currentCard = cardsToShow[this.currentFlashcardIndex];
       if (!currentCard) {
-        console.warn('[FlashcardUIController] No current card at index:', this.currentFlashcardIndex);
+        console.warn('[FlashcardUIController] No current card at index:', this.currentFlashcardIndex, 'resetting to 0');
+        this.currentFlashcardIndex = 0;
+        if (cardsToShow.length > 0) {
+          return this.renderFlashcardSlideshow(); // Retry with index 0
+        }
         return;
       }
       
       console.log('[FlashcardUIController] Rendering card:', currentCard);
       
+      // Clear list first and force visibility
+      this.flashcardList.innerHTML = '';
+      this.flashcardList.style.display = 'block';
+      this.flashcardList.style.visibility = 'visible';
+      this.flashcardList.style.opacity = '1';
+      this.flashcardList.classList.remove('hidden');
+      
       const cardElement = document.createElement('div');
-      cardElement.className = 'flashcard-card';
+      cardElement.className = 'flashcard-item';
       const frontText = currentCard.front || currentCard.question || 'Front';
       const backText = currentCard.back || currentCard.answer || 'Back';
       cardElement.innerHTML = `
-        <div class="flashcard-front">${frontText}</div>
-        <div class="flashcard-back">${backText}</div>
+        <div class="flashcard-item__inner">
+          <div class="flashcard-item__front">
+            <div class="flashcard-item__text">${frontText}</div>
+          </div>
+          <div class="flashcard-item__back">
+            <div class="flashcard-item__text">${backText}</div>
+          </div>
+        </div>
       `;
       
       cardElement.addEventListener('click', () => {
         cardElement.classList.toggle('flipped');
       });
       
-      this.flashcardList.innerHTML = '';
       this.flashcardList.appendChild(cardElement);
-      console.log('[FlashcardUIController] Card element added to list');
+      console.log('[FlashcardUIController] Card element added to list, list children:', this.flashcardList.children.length);
       
       // Navigation buttons
       const navContainer = document.createElement('div');
       navContainer.className = 'flashcard-nav';
       navContainer.innerHTML = `
         <button class="flashcard-nav-btn" id="flashcard-prev" ${this.currentFlashcardIndex === 0 ? 'disabled' : ''}>←</button>
-        <span class="flashcard-counter">${this.currentFlashcardIndex + 1}/${cards.length}</span>
-        <button class="flashcard-nav-btn" id="flashcard-next" ${this.currentFlashcardIndex === cards.length - 1 ? 'disabled' : ''}>→</button>
+        <span class="flashcard-counter">${this.currentFlashcardIndex + 1}/${cardsToShow.length}</span>
+        <button class="flashcard-nav-btn" id="flashcard-next" ${this.currentFlashcardIndex === cardsToShow.length - 1 ? 'disabled' : ''}>→</button>
       `;
       
       const prevBtn = navContainer.querySelector('#flashcard-prev');
@@ -248,7 +318,7 @@
       
       if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-          if (this.currentFlashcardIndex < cards.length - 1) {
+          if (this.currentFlashcardIndex < cardsToShow.length - 1) {
             this.currentFlashcardIndex++;
             this.renderFlashcardSlideshow();
           }

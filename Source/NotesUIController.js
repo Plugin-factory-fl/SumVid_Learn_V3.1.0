@@ -109,6 +109,14 @@
       } else {
         console.log('[NotesUIController] Rendering', notesToShow.length, 'notes');
         
+        // Ensure empty state is hidden when notes are displayed
+        if (this.noteEmpty) {
+          this.noteEmpty.classList.add('hidden');
+          this.noteEmpty.style.display = 'none'; // Force hide with inline style
+          this.noteEmpty.style.visibility = 'hidden';
+          this.noteEmpty.style.opacity = '0';
+        }
+        
         // Remove conflicting inline styles - CSS will handle visibility
         if (this.notesContent) {
           this.notesContent.style.removeProperty('display');
@@ -117,9 +125,6 @@
           this.notesContent.classList.remove('collapsed', 'hidden');
         }
         
-        if (this.noteEmpty) {
-          this.noteEmpty.classList.add('hidden');
-        }
         if (this.notesList) {
           this.notesList.classList.remove('hidden');
         }

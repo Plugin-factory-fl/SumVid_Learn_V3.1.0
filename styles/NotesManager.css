@@ -301,32 +301,49 @@
   margin: 0;
 }
 
-/* Dark mode support */
-body.dark-mode .note-item {
-  background: #2a3441;
-  border-color: rgba(255, 255, 255, 0.1);
+/* Dark mode support - match app's theme system */
+[data-theme="dark"] .note-item {
+  background: #3d3d3d !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-body.dark-mode .note-item:hover {
-  background: #323d4d;
-  border-color: #1976d2;
+[data-theme="dark"] .note-item:hover {
+  background: #4a4a4a !important;
+  border-color: #A855F7 !important;
 }
 
-body.dark-mode .note-item__title {
-  color: #e9edff;
+[data-theme="dark"] .note-item__title {
+  color: #ffffff !important;
 }
 
-body.dark-mode .note-item__folder {
-  background: #162036;
-  color: #b0b8c8;
+[data-theme="dark"] .note-item__date {
+  color: #cccccc !important;
 }
 
-body.dark-mode .note-item__content {
-  color: #b0b8c8;
+[data-theme="dark"] .note-item__folder {
+  background: #2d2d2d;
+  color: #cccccc;
 }
 
-body.dark-mode .notes-filter {
-  background: #2a3441;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #e9edff;
+[data-theme="dark"] .note-item__content {
+  color: #cccccc !important;
+}
+
+[data-theme="dark"] .note-item__edit,
+[data-theme="dark"] .note-item__delete {
+  background: transparent !important;
+  color: #cccccc !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .note-item__edit:hover,
+[data-theme="dark"] .note-item__delete:hover {
+  background: #4a4a4a !important;
+  border-color: #A855F7 !important;
+}
+
+[data-theme="dark"] .notes-filter {
+  background: #3d3d3d !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
 }

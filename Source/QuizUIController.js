@@ -171,13 +171,18 @@
     async displayQuiz(quizHTML, videoId) {
       if (!this.quizQuestionsContainer) return;
 
+      // Ensure empty state is hidden when quiz is displayed
+      if (this.quizEmpty) {
+        this.quizEmpty.classList.add('hidden');
+        this.quizEmpty.style.display = 'none'; // Force hide with inline style
+        this.quizEmpty.style.visibility = 'hidden';
+        this.quizEmpty.style.opacity = '0';
+      }
+
       // Insert quiz HTML into questions container (preserves structure)
       this.quizQuestionsContainer.innerHTML = quizHTML;
       this.quizQuestionsContainer.classList.remove('hidden');
-      
-      if (this.quizEmpty) {
-        this.quizEmpty.classList.add('hidden');
-      }
+      this.quizQuestionsContainer.style.display = ''; // Ensure visible
 
       // Initialize navigation and submit button
       this.initializeQuizNavigation();
@@ -400,9 +405,18 @@
     showQuizResultsDialog(correctAnswers, totalQuestions) {
       const dialog = document.getElementById('quiz-results-dialog');
       const messageEl = document.getElementById('quiz-results-message');
+      const scoreEl = document.getElementById('quiz-results-score');
       if (!dialog || !messageEl) return;
       
       const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+      
+      // Display score
+      if (scoreEl) {
+        scoreEl.textContent = `${correctAnswers}/${totalQuestions} (${percentage}%)`;
+        scoreEl.className = 'quiz-results-score quiz-results-score--' + 
+          (percentage === 100 ? 'win' : correctAnswers === 2 ? 'ok' : correctAnswers === 1 ? 'partial' : 'fail');
+      }
+      
       let message = '';
       
       if (percentage === 100) {

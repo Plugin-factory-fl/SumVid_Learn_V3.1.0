@@ -102,7 +102,7 @@
               </div>
               <div id="screenshot-preview" class="screenshot-preview" style="display: none;">
                 <div class="screenshot-preview-content">
-                  <img id="screenshot-preview-img" src="" alt="Screenshot preview" style="max-width: 100%; border-radius: 8px;">
+                  <img id="screenshot-preview-img" src="" alt="Screenshot preview" style="max-width: 100%; max-height: 35px; height: auto; width: auto; border-radius: 8px; object-fit: contain; display: block; margin-left: 0;">
                   <button id="screenshot-preview-remove" class="screenshot-preview-remove" type="button" aria-label="Remove screenshot">×</button>
                   <span class="screenshot-preview-text">Screenshot will be sent with your message</span>
                 </div>
@@ -744,6 +744,7 @@
         </button>
       </header>
       <div class="modal__body">
+        <div id="quiz-results-score" class="quiz-results-score"></div>
         <div id="quiz-results-message" class="quiz-results-message"></div>
       </div>
     </form>

@@ -228,6 +228,9 @@
         console.log('[FlashcardUIController] Rendering set:', relevantSets[0].title);
         if (this.flashcardEmpty) {
           this.flashcardEmpty.classList.add('hidden');
+          this.flashcardEmpty.style.display = 'none'; // Force hide with inline style
+          this.flashcardEmpty.style.visibility = 'hidden';
+          this.flashcardEmpty.style.opacity = '0';
         }
         if (this.flashcardList) {
           this.flashcardList.classList.remove('hidden');
@@ -282,6 +285,14 @@
       
       console.log('[FlashcardUIController] Rendering card:', currentCard);
       
+      // Ensure empty state is hidden when cards are shown
+      if (this.flashcardEmpty) {
+        this.flashcardEmpty.classList.add('hidden');
+        this.flashcardEmpty.style.display = 'none'; // Force hide with inline style
+        this.flashcardEmpty.style.visibility = 'hidden';
+        this.flashcardEmpty.style.opacity = '0';
+      }
+      
       // Clear list first and force visibility - remove inline styles
       this.flashcardList.innerHTML = '';
       this.flashcardList.style.removeProperty('display');
@@ -313,14 +324,13 @@
           cardElement.classList.add('flipped');
           isFlipped = true;
         } else {
-          // Second click: Advance to next card (if not last), resetting to front side
-          const isLastCard = this.currentFlashcardIndex === cardsToShow.length - 1;
-          if (!isLastCard) {
-            // Advance to next card
-            this.currentFlashcardIndex++;
-            this.renderFlashcardSlideshow();
+          // Second click: Advance to next card, looping infinitely
+          this.currentFlashcardIndex++;
+          // Loop back to start when reaching the end
+          if (this.currentFlashcardIndex >= cardsToShow.length) {
+            this.currentFlashcardIndex = 0;
           }
-          // If it's the last card and already flipped, stay on back side (do nothing)
+          this.renderFlashcardSlideshow();
         }
       });
       

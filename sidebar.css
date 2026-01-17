@@ -1224,11 +1224,35 @@ input:checked + .slider:before {
   padding: 0;
 }
 
+.quiz-results-score {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  padding: 20px 20px 10px 20px;
+  margin-bottom: 10px;
+}
+
+.quiz-results-score--win {
+  color: #10b981;
+}
+
+.quiz-results-score--ok {
+  color: #f59e0b;
+}
+
+.quiz-results-score--partial {
+  color: #f97316;
+}
+
+.quiz-results-score--fail {
+  color: #ef4444;
+}
+
 .quiz-results-message {
   font-size: 32px;
   font-weight: bold;
   text-align: center;
-  padding: 40px 20px;
+  padding: 20px 20px 40px 20px;
   animation: quiz-result-pulse 0.6s ease-out;
 }
 
@@ -2213,8 +2237,7 @@ input:checked + .slider:before {
   overflow: visible !important;
 }
 
-#tab-flashcards.active #flashcard-empty,
-#tab-flashcards.active #flashcard-empty.hidden {
+#tab-flashcards.active #flashcard-empty:not(.hidden) {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -2248,8 +2271,7 @@ input:checked + .slider:before {
   padding: 16px !important; /* Ensure padding is applied */
 }
 
-#tab-quiz.active #quiz-empty,
-#tab-quiz.active #quiz-empty.hidden {
+#tab-quiz.active #quiz-empty:not(.hidden) {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -2283,8 +2305,7 @@ input:checked + .slider:before {
   padding: 16px !important; /* Ensure padding is applied */
 }
 
-#tab-notes.active #note-empty,
-#tab-notes.active #note-empty.hidden {
+#tab-notes.active #note-empty:not(.hidden) {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -2826,10 +2847,28 @@ dialog[open] > * {
 }
 
 .screenshot-preview-img {
-  max-width: 100%;
-  max-height: 200px;
+  max-width: 100% !important;
+  max-height: 35px !important; /* Limit height to 35px */
+  height: auto !important; /* Allow height to scale proportionally */
+  width: auto !important; /* Maintain aspect ratio */
   border-radius: 8px;
-  object-fit: contain;
+  object-fit: contain; /* Preserve aspect ratio without distortion */
+  display: block; /* Make it block-level for left alignment */
+  margin-left: 0; /* Left-align */
+}
+
+#screenshot-preview-img {
+  max-width: 100% !important;
+  max-height: 35px !important;
+  height: auto !important;
+  width: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin-left: 0 !important;
+}
+
+.screenshot-preview-content {
+  text-align: left; /* Left-align content */
 }
 
 .screenshot-preview-remove {

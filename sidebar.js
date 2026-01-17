@@ -765,10 +765,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
   
-  // Initialize status cards after managers are loaded
-  setTimeout(() => {
+  // Initialize status cards and premium UI after managers are loaded
+  // Also run premium check immediately on load
+  (async () => {
+    if (window.premiumManager) {
+      await window.premiumManager.updateUIForPremium();
+    }
+  })();
+  
+  setTimeout(async () => {
     if (usageManager) {
-      usageManager.updateStatusCards();
+      await usageManager.updateStatusCards();
+      // Re-check premium after status cards update (status cards also check premium)
+      if (window.premiumManager) {
+        await window.premiumManager.updateUIForPremium();
+      }
     }
   }, 500);
 

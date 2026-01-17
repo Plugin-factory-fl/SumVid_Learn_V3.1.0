@@ -306,15 +306,46 @@ async function updateStatusCard() {
   const userStatusEl = document.getElementById('account-user-status');
   const userPlanEl = document.getElementById('account-user-plan');
   const crownIcon = document.getElementById('account-crown-icon');
+  const upgradeButton = document.getElementById('upgrade-button');
+  const enhancementsCard = document.getElementById('account-enhancements-used-card');
 
   if (userProfile) {
-    const displayName = (userProfile.name && userProfile.name.trim()) 
-      ? userProfile.name 
+    const displayName = (userProfile.name && userProfile.name.trim())
+      ? userProfile.name
       : (userProfile.email || 'User');
     if (userStatusEl) {
       userStatusEl.textContent = displayName;
     }
     const subscriptionStatus = userProfile.subscription_status || 'freemium';
+    const isPremium = subscriptionStatus === 'premium';
+    
+    // Hide/show upgrade button based on premium status
+    if (upgradeButton) {
+      if (isPremium) {
+        upgradeButton.style.display = 'none';
+      } else {
+        upgradeButton.style.display = '';
+      }
+    }
+    
+    // Hide/show enhancements used card based on premium status
+    if (enhancementsCard) {
+      if (isPremium) {
+        enhancementsCard.style.display = 'none';
+      } else {
+        enhancementsCard.style.display = '';
+      }
+    }
+    
+    // Hide/show "Upgrade to Pro" description text based on premium status
+    const planDescription = document.querySelector('.account__plan-description');
+    if (planDescription) {
+      if (isPremium) {
+        planDescription.style.display = 'none';
+      } else {
+        planDescription.style.display = '';
+      }
+    }
     if (userPlanEl) {
       userPlanEl.textContent = subscriptionStatus === 'premium' ? 'PRO' : 'Freemium';
     }
@@ -392,9 +423,15 @@ function registerAccountHandlers() {
     }
 
     // Update view before showing
-    updateLoggedInView().then(() => {
+    (async () => {
+      await updateLoggedInView();
+      await updateStatusCard();
+      // Update premium UI when dialog opens
+      if (window.premiumManager) {
+        await window.premiumManager.updateUIForPremium();
+      }
       accountDialog.showModal();
-    }).catch(() => {
+    })().catch(() => {
       // Even if update fails, show dialog
       accountDialog.showModal();
     });

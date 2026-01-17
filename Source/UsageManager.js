@@ -38,11 +38,22 @@
       try {
         const usesCounter = document.getElementById('uses-counter');
         const usesRemainingText = document.getElementById('uses-remaining-text');
+        const proSection = document.querySelector('.pro-section');
+        
         if (!usesCounter || !usesRemainingText) return;
 
         if (subscriptionStatus === 'premium') {
           usesCounter.style.display = 'none';
+          // Hide entire pro-section footer for premium users - use !important to override CSS
+          if (proSection) {
+            proSection.style.setProperty('display', 'none', 'important');
+          }
           return;
+        }
+        
+        // Show pro-section for freemium users
+        if (proSection) {
+          proSection.style.removeProperty('display');
         }
 
         if (!usage) {
@@ -158,6 +169,11 @@
         
         // Update uses counter
         this.updateUsesCounter(usage, subscriptionStatus);
+        
+        // Update UI for premium users
+        if (window.premiumManager) {
+          await window.premiumManager.updateUIForPremium();
+        }
         
         // Update button states
         this.updateButtonStates(usage.enhancementsUsed >= usage.enhancementsLimit);

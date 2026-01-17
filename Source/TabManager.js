@@ -28,7 +28,7 @@
       this.switchTab('chat');
     }
 
-    switchTab(tabName) {
+    async switchTab(tabName) {
       console.log('[TabManager] Switching to tab:', tabName);
       this.activeTab = tabName;
       
@@ -88,12 +88,21 @@
         }
       }
       
+      // CRITICAL: Hide all tabs FIRST to prevent flash, then show only active one
+      this.tabContents.forEach(tab => {
+        if (tab.id !== `tab-${tabName}`) {
+          tab.classList.remove('active');
+          tab.style.setProperty('display', 'none', 'important');
+        }
+      });
+      
       // Show only the active tab
       const activeTabContent = document.getElementById(`tab-${tabName}`);
       console.log('[TabManager] Active tab content element:', activeTabContent);
       if (activeTabContent) {
         // Add active class FIRST - CSS .tab-content.active { display: flex !important; } will handle showing
         activeTabContent.classList.add('active');
+        activeTabContent.style.removeProperty('display'); // Remove the forced hide from above
         // Then remove any conflicting inline display styles AFTER class is added
         // Don't remove display entirely - let CSS handle it via .active class
         
@@ -283,7 +292,8 @@
         window.chatManager.generateSuggestions();
       }
       
-      // Render content when switching to flashcards, quiz, or notes tabs
+      // Render content BEFORE showing tab to prevent flash
+      // For flashcards, quiz, and notes tabs, render immediately before showing
       if (tabName === 'flashcards') {
         console.log('[TabManager] Rendering flashcards, controller exists:', !!window.flashcardUIController);
         
@@ -298,11 +308,16 @@
             }
           });
         }
-        
+
+        // Render content BEFORE showing tab - this prevents flash
         if (window.flashcardUIController) {
-          window.flashcardUIController.renderFlashcards().catch(err => {
+          // Set tab to opacity 0 temporarily while rendering
+          activeTabContent.style.setProperty('opacity', '0', 'important');
+          await window.flashcardUIController.renderFlashcards().catch(err => {
             console.error('[TabManager] Error rendering flashcards:', err);
           });
+          // Remove opacity after render completes
+          activeTabContent.style.removeProperty('opacity');
         } else {
           console.warn('[TabManager] FlashcardUIController not available');
         }
@@ -332,10 +347,15 @@
           });
         }
         
+        // Render content BEFORE showing tab - this prevents flash
         if (window.quizUIController) {
-          window.quizUIController.renderQuiz().catch(err => {
+          // Set tab to opacity 0 temporarily while rendering
+          activeTabContent.style.setProperty('opacity', '0', 'important');
+          await window.quizUIController.renderQuiz().catch(err => {
             console.error('[TabManager] Error rendering quiz:', err);
           });
+          // Remove opacity after render completes
+          activeTabContent.style.removeProperty('opacity');
         } else {
           console.warn('[TabManager] QuizUIController not available');
         }
@@ -486,12 +506,17 @@
           });
         }
         
+        // Render content BEFORE showing tab - this prevents flash
         if (window.notesUIController) {
           const folder = notesFilter ? notesFilter.value : 'all';
           console.log('[TabManager] Rendering notes for folder:', folder);
-          window.notesUIController.renderNotes(folder).catch(err => {
+          // Set tab to opacity 0 temporarily while rendering
+          activeTabContent.style.setProperty('opacity', '0', 'important');
+          await window.notesUIController.renderNotes(folder).catch(err => {
             console.error('[TabManager] Error rendering notes:', err);
           });
+          // Remove opacity after render completes
+          activeTabContent.style.removeProperty('opacity');
         } else {
           console.warn('[TabManager] NotesUIController not available');
         }

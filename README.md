@@ -154,45 +154,19 @@ Built with:
 
 ## Version History
 
-### V3.1.0 (Current)
-- Added draggable sticky button with toast notification
-- Integrated backend server for authentication and usage tracking
-- Added freemium system with daily limits
-- Implemented user login/registration with password reset
-- Added settings panel with dark mode toggle
-- Added status cards showing user plan and usage
-- Manual generation buttons (Summarize, Make Test)
-- Stripe integration for premium subscriptions
-- Close button on sidebar
-- Improved sidebar sizing to match PromptProfile
-
-### V3.0.0
-- Removed donation features
-- Added freemium system (frontend-only)
-- Added login and settings dialogs
-- Changed to manual generation
-
-### V2.2.0
-- Improved error handling and connection stability
-- Enhanced message passing between components
-- Better state management for video processing
-- Improved dark mode implementation
-- Added retry mechanism for failed operations
-
-### V2.1.0
-- Added dark mode support
-- Improved UI/UX design
-- Added copy/export functionality
-- Enhanced quiz system
-
-### V2.0.0
-- Complete rewrite with AI integration
-- Added summary generation
-- Added quiz functionality
-- Added Q&A system
-
-### V1.0.0
-- Initial release with basic video detection
+### V1.0.0 (Current)
+- Complete Eureka AI release with full feature set
+- Chat workflow sidebar for learners and educators
+- AI-powered summaries, flashcards, quizzes, and smart chat
+- Support for YouTube videos, webpages, and PDFs
+- Content written at 5th-grade reading level for accessibility
+- User authentication and usage tracking
+- Freemium system with transparent pricing
+- Privacy-first design with no browsing tracking
+- Notes management and organization
+- Highlight to clarify feature
+- Dark mode support
+- Responsive design and modern UI
 
 ## Development
 

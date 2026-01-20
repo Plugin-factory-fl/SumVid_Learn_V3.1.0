@@ -498,6 +498,15 @@ router.post('/chat', async (req, res) => {
     const truncatedContext = context ? context.substring(0, maxContextLength) : '';
     
     let systemContent = `You are a helpful AI assistant. Give clear, concise answers. Keep responses simple and easy to understand.`;
+    
+    // Add vision capabilities notice if image is present
+    if (hasImage) {
+      systemContent += `\n\nIMPORTANT: You CAN view and analyze images. When the user sends you an image, you can see it and describe what's in it. `;
+      systemContent += `You can read text in images, identify objects, analyze screenshots, and answer questions about image content. `;
+      systemContent += `Do NOT say you cannot view images - you have full vision capabilities. `;
+      systemContent += `Analyze the image carefully and provide detailed, accurate descriptions based on what you see.`;
+    }
+    
     if (truncatedContext) {
       systemContent += `\n\nCRITICAL: The user has uploaded a PDF document and/or is viewing webpage/video content. `;
       systemContent += `The context below contains the ACTUAL TEXT CONTENT from these sources. `;

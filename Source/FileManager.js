@@ -26,7 +26,7 @@
      * @param {number} quality - JPEG quality 0-1 (default: 0.8)
      * @returns {Promise<string>} Compressed base64 data URL
      */
-    async compressImage(imageData, maxWidth = 1024, maxHeight = 1024, quality = 0.8) {
+    async compressImage(imageData, maxWidth = 800, maxHeight = 800, quality = 0.7) {
       return new Promise((resolve, reject) => {
         if (!imageData || typeof imageData !== 'string') {
           resolve(imageData);

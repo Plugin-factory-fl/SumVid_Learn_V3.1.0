@@ -34,12 +34,12 @@
     /**
      * Compress image to reduce file size before sending to backend
      * @param {string} imageData - Base64 data URL
-     * @param {number} maxWidth - Maximum width in pixels (default: 1024)
-     * @param {number} maxHeight - Maximum height in pixels (default: 1024)
-     * @param {number} quality - JPEG quality 0-1 (default: 0.8)
+     * @param {number} maxWidth - Maximum width in pixels (default: 800)
+     * @param {number} maxHeight - Maximum height in pixels (default: 800)
+     * @param {number} quality - JPEG quality 0-1 (default: 0.7)
      * @returns {Promise<string>} Compressed base64 data URL
      */
-    async compressImage(imageData, maxWidth = 1024, maxHeight = 1024, quality = 0.8) {
+    async compressImage(imageData, maxWidth = 800, maxHeight = 800, quality = 0.7) {
       return new Promise((resolve, reject) => {
         if (!imageData || typeof imageData !== 'string') {
           resolve(imageData);

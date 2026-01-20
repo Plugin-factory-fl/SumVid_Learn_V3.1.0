@@ -525,11 +525,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log('[Eureka AI] has image field:', !!requestBody.image);
         console.log('[Eureka AI] has images array:', Array.isArray(requestBody.images) && requestBody.images.length > 0);
 
+        // Limit chat history size when images are present to prevent "request entity too large" errors
+        // Images are large, so we need to be more aggressive with history truncation
+        let chatHistoryToSend = message.chatHistory || [];
+        if (message.useVisionModel && chatHistoryToSend.length > 0) {
+          // Limit to last 5 messages when images are present to keep request size manageable
+          const maxHistoryMessages = 5;
+          if (chatHistoryToSend.length > maxHistoryMessages) {
+            console.log(`[Eureka AI] Truncating chat history from ${chatHistoryToSend.length} to ${maxHistoryMessages} messages due to image presence`);
+            chatHistoryToSend = chatHistoryToSend.slice(-maxHistoryMessages);
+          }
+          requestBody.chatHistory = chatHistoryToSend;
+        }
+
         // Add context if provided (truncate to avoid token limits)
+        // When images are present, reduce context even more to leave room for image data
+        const maxContextLength = message.useVisionModel ? 1500 : 3000; // Less context when image is present
         if (message.context) {
-          // Truncate context to 3000 chars (~750 tokens) to leave room for chat history
-          requestBody.context = message.context.length > 3000
-            ? message.context.substring(0, 3000) + '\n[Note: Context truncated for length.]'
+          // Truncate context to leave room for chat history and image
+          requestBody.context = message.context.length > maxContextLength
+            ? message.context.substring(0, maxContextLength) + '\n[Note: Context truncated for length.]'
             : message.context;
         } else if (contentInfo) {
           // Auto-include content context for better responses (truncated)
@@ -539,12 +554,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             : (contentInfo.text || '');
 
           if (contentText) {
-            // Truncate to 3000 chars to avoid token limits
-            requestBody.context = contentText.substring(0, 3000);
-            if (contentText.length > 3000) {
+            // Truncate to leave room for image data
+            requestBody.context = contentText.substring(0, maxContextLength);
+            if (contentText.length > maxContextLength) {
               requestBody.context += '\n[Note: Content truncated for length.]';
             }
           }
+        }
+
+        // Check request size before sending
+        const requestSize = JSON.stringify(requestBody).length;
+        console.log(`[Eureka AI] Final request size: ${requestSize} bytes (${Math.round(requestSize / 1024)} KB)`);
+        
+        // Warn if request is getting large (most servers have ~1MB limit)
+        if (requestSize > 800 * 1024) { // 800KB
+          console.warn(`[Eureka AI] Request size is large (${Math.round(requestSize / 1024)} KB), may cause "request entity too large" error`);
         }
 
         const response = await callBackendAPI('/api/chat', 'POST', requestBody);

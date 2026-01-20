@@ -1290,6 +1290,34 @@ input:checked + .slider:before {
   background: #3d3d3d;
 }
 
+/* Quiz Results Report */
+.quiz-results-report {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+[data-theme="dark"] .quiz-results-report {
+  background: #2a2a2a;
+  color: #e0e0e0;
+}
+
+/* Chat message images */
+.chat-message-image {
+  max-width: 100% !important;
+  max-height: 250px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
 .quiz-result.okay {
   background-color: #FFC107;
   color: black;

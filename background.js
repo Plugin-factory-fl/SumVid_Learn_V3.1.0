@@ -501,9 +501,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           chatHistory: message.chatHistory || []
         };
 
-        // Add useVisionModel flag if images/files are present
+        // Add useVisionModel flag and image data if images/files are present
         if (message.useVisionModel) {
           requestBody.useVisionModel = true;
+          if (message.imageData) {
+            // Send image data as base64 string to backend
+            requestBody.imageData = message.imageData;
+          }
         }
 
         // Add context if provided (truncate to avoid token limits)

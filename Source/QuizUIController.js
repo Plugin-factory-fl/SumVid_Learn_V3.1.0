@@ -363,11 +363,43 @@
 
       let correctAnswers = 0;
       const totalQuestions = questions.length;
+      this.quizReportData = []; // Store report data for each question
 
-      questions.forEach((question) => {
+      questions.forEach((question, index) => {
         const selectedAnswer = question.querySelector('input[type="radio"]:checked');
-        const correctAnswer = question.querySelector('.correct-answer')?.textContent;
+        const correctAnswer = question.querySelector('.correct-answer')?.textContent?.trim();
         const allOptions = question.querySelectorAll('.quiz-option-button, label[for*="option"]');
+        
+        // Extract question text - try common selectors
+        const questionText = question.querySelector('h3, h4, .question-text, p')?.textContent?.trim() || 
+                           question.textContent.split('?')[0]?.trim() + '?' || 
+                           `Question ${index + 1}`;
+        
+        // Get user's selected answer text
+        let userAnswerText = 'Not answered';
+        if (selectedAnswer) {
+          const selectedLabel = selectedAnswer.closest('label') || selectedAnswer.parentElement;
+          if (selectedLabel) {
+            userAnswerText = selectedLabel.textContent.trim() || selectedAnswer.value;
+          } else {
+            userAnswerText = selectedAnswer.value;
+          }
+        }
+        
+        // Determine if answer was correct
+        const isCorrect = selectedAnswer && selectedAnswer.value === correctAnswer;
+        if (isCorrect) {
+          correctAnswers++;
+        }
+        
+        // Store report data
+        this.quizReportData.push({
+          questionNumber: index + 1,
+          questionText: questionText,
+          userAnswer: userAnswerText,
+          correctAnswer: correctAnswer || 'Unknown',
+          isCorrect: isCorrect
+        });
         
         allOptions.forEach(option => {
           option.classList.remove('quiz-answer-correct', 'quiz-answer-incorrect');
@@ -388,7 +420,6 @@
           const selectedLabel = selectedAnswer.closest('label') || selectedAnswer.parentElement;
           if (selectedLabel) {
             if (selectedAnswer.value === correctAnswer) {
-              correctAnswers++;
               selectedLabel.classList.add('quiz-answer-correct');
               selectedLabel.style.border = '2px solid #10b981';
             } else {
@@ -406,6 +437,8 @@
       const dialog = document.getElementById('quiz-results-dialog');
       const messageEl = document.getElementById('quiz-results-message');
       const scoreEl = document.getElementById('quiz-results-score');
+      const reportEl = document.getElementById('quiz-results-report');
+      const buttonsContainer = document.getElementById('quiz-results-buttons');
       if (!dialog || !messageEl) return;
       
       const percentage = Math.round((correctAnswers / totalQuestions) * 100);
@@ -432,6 +465,120 @@
       messageEl.textContent = message;
       messageEl.className = 'quiz-results-message quiz-results-message--' + 
         (percentage === 100 ? 'win' : correctAnswers === 2 ? 'ok' : correctAnswers === 1 ? 'partial' : 'fail');
+      
+      // Generate and display report
+      if (reportEl && this.quizReportData && this.quizReportData.length > 0) {
+        let reportText = `Quiz Results Report\n`;
+        reportText += `Score: ${correctAnswers}/${totalQuestions} (${percentage}%)\n\n`;
+        
+        this.quizReportData.forEach((item, index) => {
+          reportText += `Question ${item.questionNumber}: ${item.questionText}\n`;
+          reportText += `Your Answer: ${item.userAnswer}\n`;
+          reportText += `Correct Answer: ${item.correctAnswer}\n`;
+          reportText += `Result: ${item.isCorrect ? 'Correct' : 'Incorrect'}\n`;
+          if (index < this.quizReportData.length - 1) {
+            reportText += `\n`;
+          }
+        });
+        
+        reportEl.textContent = reportText;
+        reportEl.style.display = 'block';
+      } else if (reportEl) {
+        reportEl.style.display = 'none';
+      }
+      
+      // Add Save to Notes and Copy buttons
+      if (buttonsContainer) {
+        // Clear existing buttons
+        buttonsContainer.innerHTML = '';
+        
+        // Create Save to Notes button
+        const saveToNotesButton = document.createElement('button');
+        saveToNotesButton.id = 'save-quiz-report-to-notes-button';
+        saveToNotesButton.className = 'btn btn--primary';
+        saveToNotesButton.textContent = 'Save to Notes';
+        saveToNotesButton.style.cssText = 'display: inline-block;';
+        
+        saveToNotesButton.addEventListener('click', async () => {
+          try {
+            if (!reportEl || !reportEl.textContent) {
+              alert('No report available to save.');
+              return;
+            }
+            
+            // Get content title
+            const stored = await chrome.storage.local.get(['currentContentInfo', 'currentVideoInfo']);
+            const contentInfo = stored.currentContentInfo || stored.currentVideoInfo;
+            const contentTitle = contentInfo?.title || 'Quiz';
+            const noteTitle = `${contentTitle} - Quiz Results`;
+            
+            if (!window.SumVidNotesManager) {
+              alert('Notes manager not available.');
+              return;
+            }
+            
+            await window.SumVidNotesManager.createNote(
+              noteTitle,
+              reportEl.textContent,
+              'Quizzes'
+            );
+            
+            // Show confirmation
+            const originalText = saveToNotesButton.textContent;
+            saveToNotesButton.textContent = 'Saved!';
+            saveToNotesButton.disabled = true;
+            
+            setTimeout(() => {
+              saveToNotesButton.textContent = originalText;
+              saveToNotesButton.disabled = false;
+            }, 2000);
+            
+            // Refresh notes list if notes tab is active
+            if (window.tabManager && window.tabManager.getActiveTab() === 'notes' && window.notesUIController) {
+              const notesFilter = document.getElementById('notes-filter');
+              const folder = notesFilter ? notesFilter.value : 'all';
+              await window.notesUIController.renderNotes(folder);
+            }
+          } catch (error) {
+            console.error('[Eureka AI] Error saving quiz report to notes:', error);
+            alert('Failed to save quiz report to notes. Please try again.');
+          }
+        });
+        
+        // Create Copy button
+        const copyButton = document.createElement('button');
+        copyButton.id = 'copy-quiz-report-button';
+        copyButton.className = 'btn btn--primary';
+        copyButton.textContent = 'Copy';
+        copyButton.style.cssText = 'display: inline-block;';
+        
+        copyButton.addEventListener('click', async () => {
+          try {
+            if (!reportEl || !reportEl.textContent) {
+              alert('No report available to copy.');
+              return;
+            }
+            
+            await navigator.clipboard.writeText(reportEl.textContent);
+            
+            // Show confirmation
+            const originalText = copyButton.textContent;
+            copyButton.textContent = 'Copied!';
+            copyButton.disabled = true;
+            
+            setTimeout(() => {
+              copyButton.textContent = originalText;
+              copyButton.disabled = false;
+            }, 2000);
+          } catch (error) {
+            console.error('[Eureka AI] Error copying quiz report:', error);
+            alert('Failed to copy quiz report. Please try again.');
+          }
+        });
+        
+        buttonsContainer.appendChild(saveToNotesButton);
+        buttonsContainer.appendChild(copyButton);
+      }
       
       dialog.showModal();
     }

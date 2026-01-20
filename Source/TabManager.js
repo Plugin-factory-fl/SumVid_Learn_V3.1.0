@@ -311,10 +311,12 @@
 
         // Render content BEFORE showing tab - this prevents flash
         if (window.flashcardUIController) {
-          // Create white overlay for elegant fade-in
+          // Create overlay for elegant fade-in (matches theme)
+          const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+          const overlayBg = isDarkMode ? '#1a1a1a' : '#ffffff';
           const overlay = document.createElement('div');
           overlay.className = 'tab-content-overlay';
-          overlay.style.cssText = 'position: absolute; inset: 0; background: white; opacity: 1; z-index: 9999; pointer-events: none; transition: opacity 1s ease-out;';
+          overlay.style.cssText = `position: absolute; inset: 0; background: ${overlayBg}; opacity: 1; z-index: 9999; pointer-events: none; transition: opacity 1s ease-out;`;
           activeTabContent.style.position = 'relative';
           activeTabContent.appendChild(overlay);
           
@@ -368,13 +370,34 @@
         
         // Render content BEFORE showing tab - this prevents flash
         if (window.quizUIController) {
+          // Create overlay for elegant fade-in (matches theme)
+          const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+          const overlayBg = isDarkMode ? '#1a1a1a' : '#ffffff';
+          const overlay = document.createElement('div');
+          overlay.className = 'tab-content-overlay';
+          overlay.style.cssText = `position: absolute; inset: 0; background: ${overlayBg}; opacity: 1; z-index: 9999; pointer-events: none; transition: opacity 1s ease-out;`;
+          activeTabContent.style.position = 'relative';
+          activeTabContent.appendChild(overlay);
+          
           // Set tab to opacity 0 temporarily while rendering
           activeTabContent.style.setProperty('opacity', '0', 'important');
           await window.quizUIController.renderQuiz().catch(err => {
             console.error('[TabManager] Error rendering quiz:', err);
           });
+          
           // Remove opacity after render completes
           activeTabContent.style.removeProperty('opacity');
+          
+          // Trigger fade-out animation
+          requestAnimationFrame(() => {
+            overlay.style.opacity = '0';
+            // Remove overlay after animation completes
+            setTimeout(() => {
+              if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+              }
+            }, 1000);
+          });
         } else {
           console.warn('[TabManager] QuizUIController not available');
         }
@@ -527,6 +550,15 @@
         
         // Render content BEFORE showing tab - this prevents flash
         if (window.notesUIController) {
+          // Create overlay for elegant fade-in (matches theme)
+          const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+          const overlayBg = isDarkMode ? '#1a1a1a' : '#ffffff';
+          const overlay = document.createElement('div');
+          overlay.className = 'tab-content-overlay';
+          overlay.style.cssText = `position: absolute; inset: 0; background: ${overlayBg}; opacity: 1; z-index: 9999; pointer-events: none; transition: opacity 1s ease-out;`;
+          activeTabContent.style.position = 'relative';
+          activeTabContent.appendChild(overlay);
+          
           const folder = notesFilter ? notesFilter.value : 'all';
           console.log('[TabManager] Rendering notes for folder:', folder);
           // Set tab to opacity 0 temporarily while rendering
@@ -534,8 +566,20 @@
           await window.notesUIController.renderNotes(folder).catch(err => {
             console.error('[TabManager] Error rendering notes:', err);
           });
+          
           // Remove opacity after render completes
           activeTabContent.style.removeProperty('opacity');
+          
+          // Trigger fade-out animation
+          requestAnimationFrame(() => {
+            overlay.style.opacity = '0';
+            // Remove overlay after animation completes
+            setTimeout(() => {
+              if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+              }
+            }, 1000);
+          });
         } else {
           console.warn('[TabManager] NotesUIController not available');
         }

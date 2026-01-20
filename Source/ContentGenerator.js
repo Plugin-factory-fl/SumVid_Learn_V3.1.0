@@ -199,20 +199,27 @@
               window.showCompletionBadge(this.summaryContainer);
             }
             
-            // Add "Save to notes" button for cached summary
+            // Add "Save to notes" and "Copy" buttons for cached summary
             if (summaryTextElement && window.SumVidNotesManager) {
-              // Remove existing save-to-notes button if present
+              // Remove existing buttons if present
               const existingSaveButton = document.getElementById('save-summary-to-notes-button');
-              if (existingSaveButton) {
-                existingSaveButton.remove();
-              }
+              const existingCopyButton = document.getElementById('copy-summary-button');
+              const existingButtonContainer = document.getElementById('summary-buttons-container');
+              if (existingSaveButton) existingSaveButton.remove();
+              if (existingCopyButton) existingCopyButton.remove();
+              if (existingButtonContainer) existingButtonContainer.remove();
+              
+              // Create button container
+              const buttonContainer = document.createElement('div');
+              buttonContainer.id = 'summary-buttons-container';
+              buttonContainer.style.cssText = 'margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;';
               
               // Create "Save to notes" button
               const saveToNotesButton = document.createElement('button');
               saveToNotesButton.id = 'save-summary-to-notes-button';
               saveToNotesButton.className = 'btn btn--primary';
               saveToNotesButton.textContent = 'Save to notes';
-              saveToNotesButton.style.cssText = 'margin-top: 16px; display: inline-block;';
+              saveToNotesButton.style.cssText = 'display: inline-block;';
               
               saveToNotesButton.addEventListener('click', async () => {
                 try {
@@ -252,8 +259,44 @@
                 }
               });
               
-              // Insert button after summary text element
-              summaryTextElement.parentNode.insertBefore(saveToNotesButton, summaryTextElement.nextSibling);
+              // Create "Copy" button
+              const copyButton = document.createElement('button');
+              copyButton.id = 'copy-summary-button';
+              copyButton.className = 'btn btn--primary';
+              copyButton.textContent = 'Copy';
+              copyButton.style.cssText = 'display: inline-block;';
+              
+              copyButton.addEventListener('click', async () => {
+                try {
+                  const summaryText = summaryTextElement.textContent || summaryTextElement.innerText;
+                  
+                  if (!summaryText || summaryText === 'Generating summary...') {
+                    alert('No summary available to copy.');
+                    return;
+                  }
+                  
+                  await navigator.clipboard.writeText(summaryText);
+                  
+                  // Show brief confirmation
+                  const originalText = copyButton.textContent;
+                  copyButton.textContent = 'Copied!';
+                  copyButton.disabled = true;
+                  
+                  setTimeout(() => {
+                    copyButton.textContent = originalText;
+                    copyButton.disabled = false;
+                  }, 2000);
+                } catch (error) {
+                  console.error('[Eureka AI] Error copying summary:', error);
+                  alert('Failed to copy summary. Please try again.');
+                }
+              });
+              
+              buttonContainer.appendChild(saveToNotesButton);
+              buttonContainer.appendChild(copyButton);
+              
+              // Insert button container after summary text element
+              summaryTextElement.parentNode.insertBefore(buttonContainer, summaryTextElement.nextSibling);
             }
             
             // Ensure cached summary is visible and expanded
@@ -347,20 +390,27 @@
           if (summarizeButton) summarizeButton.style.display = 'none';
           if (regenerateSummaryButton) regenerateSummaryButton.style.display = 'block';
           
-          // Add "Save to notes" button after summary generation
+          // Add "Save to notes" and "Copy" buttons after summary generation
           if (summaryTextElement && window.SumVidNotesManager) {
-            // Remove existing save-to-notes button if present
+            // Remove existing buttons if present
             const existingSaveButton = document.getElementById('save-summary-to-notes-button');
-            if (existingSaveButton) {
-              existingSaveButton.remove();
-            }
+            const existingCopyButton = document.getElementById('copy-summary-button');
+            const existingButtonContainer = document.getElementById('summary-buttons-container');
+            if (existingSaveButton) existingSaveButton.remove();
+            if (existingCopyButton) existingCopyButton.remove();
+            if (existingButtonContainer) existingButtonContainer.remove();
+            
+            // Create button container
+            const buttonContainer = document.createElement('div');
+            buttonContainer.id = 'summary-buttons-container';
+            buttonContainer.style.cssText = 'margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;';
             
             // Create "Save to notes" button
             const saveToNotesButton = document.createElement('button');
             saveToNotesButton.id = 'save-summary-to-notes-button';
             saveToNotesButton.className = 'btn btn--primary';
             saveToNotesButton.textContent = 'Save to notes';
-            saveToNotesButton.style.cssText = 'margin-top: 16px; display: inline-block;';
+            saveToNotesButton.style.cssText = 'display: inline-block;';
             
             saveToNotesButton.addEventListener('click', async () => {
               try {
@@ -400,8 +450,44 @@
               }
             });
             
-            // Insert button after summary text element
-            summaryTextElement.parentNode.insertBefore(saveToNotesButton, summaryTextElement.nextSibling);
+            // Create "Copy" button
+            const copyButton = document.createElement('button');
+            copyButton.id = 'copy-summary-button';
+            copyButton.className = 'btn btn--primary';
+            copyButton.textContent = 'Copy';
+            copyButton.style.cssText = 'display: inline-block;';
+            
+            copyButton.addEventListener('click', async () => {
+              try {
+                const summaryText = summaryTextElement.textContent || summaryTextElement.innerText;
+                
+                if (!summaryText || summaryText === 'Generating summary...') {
+                  alert('No summary available to copy.');
+                  return;
+                }
+                
+                await navigator.clipboard.writeText(summaryText);
+                
+                // Show brief confirmation
+                const originalText = copyButton.textContent;
+                copyButton.textContent = 'Copied!';
+                copyButton.disabled = true;
+                
+                setTimeout(() => {
+                  copyButton.textContent = originalText;
+                  copyButton.disabled = false;
+                }, 2000);
+              } catch (error) {
+                console.error('[Eureka AI] Error copying summary:', error);
+                alert('Failed to copy summary. Please try again.');
+              }
+            });
+            
+            buttonContainer.appendChild(saveToNotesButton);
+            buttonContainer.appendChild(copyButton);
+            
+            // Insert button container after summary text element
+            summaryTextElement.parentNode.insertBefore(buttonContainer, summaryTextElement.nextSibling);
           }
           
           // Ensure summary content is visible and expanded after generation

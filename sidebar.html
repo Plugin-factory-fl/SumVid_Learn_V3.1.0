@@ -97,6 +97,9 @@
         <div class="tab-content active" id="tab-chat">
           <section class="panel__section panel__section--chat" id="chat-section">
             <div class="chat-container">
+              <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+                <button id="clear-chat-button" class="btn btn--ghost" type="button" style="font-size: 12px; padding: 4px 8px;">Clear Chat</button>
+              </div>
               <div id="chat-messages" class="chat-messages">
                 <div id="chat-suggestions" class="chat-suggestions"></div>
               </div>
@@ -746,6 +749,8 @@
       <div class="modal__body">
         <div id="quiz-results-score" class="quiz-results-score"></div>
         <div id="quiz-results-message" class="quiz-results-message"></div>
+        <div id="quiz-results-report" class="quiz-results-report"></div>
+        <div id="quiz-results-buttons" class="quiz-results-buttons" style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;"></div>
       </div>
     </form>
   </dialog>
